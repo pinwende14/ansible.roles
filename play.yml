@@ -1,0 +1,35 @@
+---
+- hosts: devserver
+  become: yes
+  ignore_errors: True
+  vars:
+    pkg_name: httpd
+    username: pinare
+  tasks: 
+    - name: Creating user
+      user:
+        name: "{{ username }}"
+        comment: Pinare Admin
+        shell: /bin/bash
+     # when: ansible_os_family == "debian"
+    - name: create a file
+      file:
+        path: /tmp/ansible.txt
+        state: touch
+        mode: '0600'
+    - name: create directory
+      file:
+        path: /tmp/dir
+        state: directory
+        mode: '0777'
+    - name: install apache
+      yum:
+        name: "{{ pkg_name }}"
+        state: present
+    - name: install finger
+      package:
+        name: "{{ item}}"
+        state: present
+      with_items:
+        - wget
+        - finger

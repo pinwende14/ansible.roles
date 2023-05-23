@@ -1,0 +1,36 @@
+---
+- hosts: qaserver
+  become: yes
+  ignore_errors: yes
+    tasks: 
+      - name: install package
+        package:
+          name: "{{ item }}"
+          state: present
+      with_items:
+        - unzip
+        - wget
+        - httpd
+
+      - name: Download static-resume project
+        get_url:
+          url: https://github.com/utrains/static-resume/archive/refs/heads/main.zip
+          dest: /tmp/main.zip
+
+      - name: Extract static-resume project
+        unarchive:
+          src: /tmp/main.zip
+          dest: /tmp
+          remote_src: true
+
+      - name: Copy files to web server
+         copy:
+          src: /tmp/static-resume-main/iPortfolio/
+          dest: /var/www/html/
+          remote_src: true
+
+      - name: Start httpd service
+        service:
+          name: httpd
+          state: started
+          enabled: true
